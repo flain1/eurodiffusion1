@@ -179,7 +179,7 @@ const main = () => {
     }
 
     let isCaseComplete = false;
-    let daysPassed = 1;
+    let daysPassed = 0;
 
     while (!isCaseComplete) {
       updateCitiesDayBalance(case1, map);
@@ -192,7 +192,7 @@ const main = () => {
   }
 
   const sortedAnswers = answers.map(caseX => {
-    return caseX.countries.sort((a, b) => b.completionDay - a.completionDay);
+    return caseX.countries.sort((a, b) => a.completionDay - b.completionDay);
   });
 
   sortedAnswers.forEach((caseX, index) => {
