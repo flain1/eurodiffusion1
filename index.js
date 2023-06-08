@@ -24,9 +24,13 @@ const parseInput = (input) => {
     if (typeof countryName !== 'string' || countryName.length > 25) {
       throw new Error('Erroneous country name');
     }
-    if (isNaN(lowerX) || isNaN(lowerY) || isNaN(upperX) || isNaN(upperY)) {
+    if (isNaN(lowerX ) || isNaN(lowerY) || isNaN(upperX) || isNaN(upperY)) {
       throw new Error('Erroneous country coordinates');
+
     }
+if (Number(lowerX)<0 || (Number(lowerY)<0) || (Number(upperX)<0) || (Number(upperY)<0)) {
+  throw new Error('Negative coordinates');
+}
 
     const country = {
       name: countryName,
@@ -179,7 +183,7 @@ const main = () => {
     }
 
     let isCaseComplete = false;
-    let daysPassed = 0;
+    let daysPassed = 1;
 
     while (!isCaseComplete) {
       updateCitiesDayBalance(case1, map);
