@@ -1,5 +1,9 @@
 const fs = require('fs');
 
+const worldSize = 10;
+const startCapital = 1000000;  
+const repPortioning = 1000;
+
 const parseInput = (input) => {
   const data = input.split('\n');
   const cases = [];
@@ -20,6 +24,11 @@ const parseInput = (input) => {
     const lowerY = Number(countryData[2]);
     const upperX = Number(countryData[3]);
     const upperY = Number(countryData[4]);
+    const lowerXnum = Number(lowerX);
+    const lowerYnum = Number(lowerY);
+    const upperXnum = Number(upperX);
+    const upperYnum = Number(upperY);
+
 
     if (typeof countryName !== 'string' || countryName.length > 25) {
       throw new Error('Erroneous country name');
@@ -28,7 +37,8 @@ const parseInput = (input) => {
       throw new Error('Erroneous country coordinates');
 
     }
-if (Number(lowerX)<0 || (Number(lowerY)<0) || (Number(upperX)<0) || (Number(upperY)<0)) {
+
+if (lowerXnum < 0 || lowerYnum < 0 || upperXnum < 0 || upperYnum < 0) {
   throw new Error('Negative coordinates');
 }
 
@@ -69,12 +79,13 @@ const updateCitiesDayBalance = (caseX, map) => {
 
       const validatedNeighborsCoordinates = cityNeighborsCoordinates.filter(coordinates => {
         const [x, y] = coordinates;
-        return x >= 0 && y >= 0 && x < 10 && y < 10 && map[x][y];
+        //const worldSize = 10;
+        return x >= 0 && y >= 0 && x < worldSize && y < worldSize && map[x][y];
       });
 
       const todayTransferMap = caseX.countriesNames.reduce((balance, countryName) => ({
         ...balance,
-        [countryName]: Math.floor(city.balance[countryName] / 1000),
+        [countryName]: Math.floor(city.balance[countryName] / repPortioning),
       }), {});
 
       validatedNeighborsCoordinates.forEach(coordinates => {
@@ -151,22 +162,22 @@ const updateCountriesAndCitiesCompletion = (caseX, day, map) => {
 };
 
 const main = () => {
-  const map = Array.from({ length: 10 }, () => Array.from({ length: 10 }));
+  const map = Array.from({ length: worldSize }, () => Array.from({ length: worldSize }));
 
   const input = fs.readFileSync('./input.txt', { encoding: 'utf8', flag: 'r' });
   const cases = parseInput(input);
   const answers = [];
 
-  for (const case1 of cases) {
-    for (const country of case1.countries) {
+  for (const caseX of cases) {
+    for (const country of caseX.countries) {
       for (let i = country.lowerX - 1; i < country.upperX; i++) {
         for (let j = country.lowerY - 1; j < country.upperY; j++) {
-          const cityBalance = case1.countriesNames.reduce((balance, countryName) => ({
+          const cityBalance = caseX.countriesNames.reduce((balance, countryName) => ({
             ...balance,
-            [countryName]: countryName === country.name ? 1000000 : 0
+            [countryName]: countryName === country.name ? startCapital : 0
           }), {});
 
-          const initDayBalance = case1.countriesNames.reduce((balance, countryName) => ({
+          const initDayBalance = caseX.countriesNames.reduce((balance, countryName) => ({
             ...balance,
             [countryName]: 0
           }), {});
@@ -186,17 +197,21 @@ const main = () => {
     let daysPassed = 1;
 
     while (!isCaseComplete) {
-      updateCitiesDayBalance(case1, map);
-      updateCitiesBalance(case1, map);
-      isCaseComplete = updateCountriesAndCitiesCompletion(case1, daysPassed, map);
+      updateCitiesDayBalance(caseX, map);
+      updateCitiesBalance(caseX, map);
+      isCaseComplete = updateCountriesAndCitiesCompletion(caseX, daysPassed, map);
       daysPassed++;
     }
 
-    answers.push(case1);
+    answers.push(caseX);
   }
 
   const sortedAnswers = answers.map(caseX => {
     return caseX.countries.sort((a, b) => a.completionDay - b.completionDay);
+  });
+
+  const sortedByName = answers.map(caseX => {
+    return caseX.countries.sort((a, b) => a.name - b.name);
   });
 
   sortedAnswers.forEach((caseX, index) => {
@@ -205,6 +220,16 @@ const main = () => {
       console.log(`${country.name}: ${country.completionDay}`)
     })
 
+    console.log('')
+  }) 
+
+  
+  sortedByName.forEach((caseX, index) => {
+    console.log(`Case Number ${index + 1}: `)
+    caseX.sort((a, b) => a.name.localeCompare(b.name)); // Sort by country name
+    caseX.forEach((country) => {
+      console.log(`${country.name}: ${country.completionDay}`)
+    })
     console.log('')
   }) 
 };
